@@ -6,19 +6,25 @@
     <title>SaaS Pharma - Pedidos de Fórmulas</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; color: #333; }
-        .container { max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 auto; }
+        .container { max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 auto; text-align: center; }
         h1 { color: #0284c7; }
-        p { line-height: 1.6; }
-        .btn { display: inline-block; background-color: #0284c7; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px; }
-        .btn:hover { background-color: #0369a1; }
+        p { line-height: 1.6; color: #555; }
+        .actions { margin-top: 25px; display: flex; gap: 15px; justify-content: center; }
+        .btn { display: inline-block; background-color: #0284c7; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        .btn-secondary { background-color: #475569; }
+        .btn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>SaaS Pharma</h1>
         <p>Gestão e solicitação de fórmulas manipuladas e personalizadas.</p>
-        <p>Envie sua receita ou solicite um orçamento diretamente para a nossa equipe técnica.</p>
-        <a href="insert.jsp" class="btn">Solicitar Orçamento de Fórmula</a>
+        <p>Envie sua receita ou acompanhe as solicitações registradas.</p>
+        
+        <div class="actions">
+            <a href="insert.jsp" class="btn">Solicitar Orçamento</a>
+            <a href="select.jsp" class="btn btn-secondary">Ver Pedidos Cadastrados</a>
+        </div>
     </div>
 </body>
 </html>
