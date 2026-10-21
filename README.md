@@ -1,4 +1,4 @@
-# SaaS PharmaCraft - Gestão e Pedidos para Farmácia de Manipulação
+# SaaS Pharma - Gestão e Pedidos para Farmácia de Manipulação
 
 ## 1. Esboço da Aplicação
 O **Pharma** é uma plataforma SaaS voltada para farmácias de manipulação e seus clientes. A aplicação permite a solicitação, orçamento e acompanhamento de fórmulas magistrais e oficinais personalizadas.
