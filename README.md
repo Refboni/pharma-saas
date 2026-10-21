@@ -1,7 +1,7 @@
 # SaaS PharmaCraft - Gestão e Pedidos para Farmácia de Manipulação
 
 ## 1. Esboço da Aplicação
-O **PharmaCraft** é uma plataforma SaaS voltada para farmácias de manipulação e seus clientes. A aplicação permite a solicitação, orçamento e acompanhamento de fórmulas magistrais e oficinais personalizadas.
+O **Pharma** é uma plataforma SaaS voltada para farmácias de manipulação e seus clientes. A aplicação permite a solicitação, orçamento e acompanhamento de fórmulas magistrais e oficinais personalizadas.
 
 ### Problema
 Farmácias de manipulação dependem frequentemente de canais informais (como e-mail ou mensagens instantâneas) para receber receitas e pedidos de fórmulas, gerando perda de histórico, erros na interpretação de dosagens e falta de rastreabilidade.
