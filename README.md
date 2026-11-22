@@ -15,8 +15,9 @@ Uma plataforma centralizada na nuvem onde:
 
 ## 2. Status das Funcionalidades
 
-- [x] **Modelagem e Banco de Dados Relacional**: Estrutura inicial de clientes, pedidos de fórmulas e tabela de autenticação (`conf/`).
-- [x] **Autenticação de Usuários**: Tela de login (`login.jsp`) com validação de credenciais e criação de sessão (`HttpSession`).
+- [x] **Modelagem e Banco de Dados Relacional**: Estrutura inicial de clientes, pedidos de fórmulas e tabela de autenticação (`conf/script.sql`).
+- [x] **Configuração de Conexão JDBC (Pool Tomcat)**: Datasource `jdbc/pharma_db` configurado via `conf/context.xml`.
+- [x] **Autenticação de Usuários**: Tela de login (`login.jsp`) com validação de credenciais (hash MD5) e criação de sessão (`HttpSession`).
 - [x] **Camada de Segurança e Controle de Acesso**: Filtro Java (`AuthFilter`) mapeado via `web.xml` para interceptar requisições, bloquear acessos sem sessão ativa e impedir cache de páginas protegidas no navegador.
 - [x] **Solicitação de Fórmulas**: Formulário de cadastro e envio de pedidos (`insert.jsp`).
 - [x] **Consulta de Pedidos**: Listagem e acompanhamento das solicitações registradas (`select.jsp`).
@@ -28,7 +29,9 @@ Uma plataforma centralizada na nuvem onde:
 
 ```text
 pharma-saas/
-├── conf/                                              # Scripts SQL de criação das tabelas e dados iniciais
+├── conf/
+│   ├── context.xml                                    # Configuração do DataSource JDBC (jdbc/pharma_db)
+│   └── script.sql                                     # Script de criação do banco, tabelas e dados de teste
 ├── WEB-INF/
 │   ├── classes/com/pharma/security/AuthFilter.class   # Filtro de autenticação e controle de cache (Java 21)
 │   └── web.xml                                        # Mapeamento do AuthFilter e configurações da aplicação
@@ -78,7 +81,7 @@ Com as telas de cadastro (`insert.jsp`) e consulta (`select.jsp`) operacionais, 
 
 #### Decisões
 1. **Controle de Sessão via JSP (`login.jsp`)**:
-   - Validação das credenciais na tabela de login do MySQL e armazenamento do atributo de identificação do usuário na `HttpSession`.
+   - Validação das credenciais na tabela `login` do MySQL (`MD5`) e armazenamento do atributo de identificação do usuário na `HttpSession`.
 2. **Interceptação Centralizada com Servlet Filter (`AuthFilter`)**:
    - Implementação da classe `com.pharma.security.AuthFilter` (utilizando a API `jakarta.servlet.Filter` compatível com Apache Tomcat 10 e compilada com `--release 21`).
    - Mapeamento no `WEB-INF/web.xml` para interceptar as requisições da aplicação, liberando apenas a rota de autenticação (`login.jsp`) e redirecionando automaticamente qualquer acesso sem sessão válida para a tela de login.
@@ -91,13 +94,43 @@ Com as telas de cadastro (`insert.jsp`) e consulta (`select.jsp`) operacionais, 
 
 ---
 
-## 5. Guia de Implantação e Testes (Ambiente Tomcat 10)
+## 5. Guia de Implantação e Testes (Passo a Passo)
 
-1. **Banco de Dados**:
-   - Execute os scripts SQL disponíveis na pasta `conf/` no MySQL para criar as tabelas e inserir o usuário de teste.
-2. **Deploy no Tomcat 10**:
-   - Copie os arquivos do repositório para `/var/lib/tomcat10/webapps/pharma-saas/` e reinicie o serviço caso necessário (`sudo systemctl restart tomcat10`).
-3. **Roteiro de Validação**:
-   - **Bloqueio de rota**: Acesse `http://<IP_DA_VM>:8080/pharma-saas/select.jsp` sem estar logado e confirme o redirecionamento automático para `login.jsp`.
-   - **Autenticação**: Faça login em `http://<IP_DA_VM>:8080/pharma-saas/login.jsp` utilizando as credenciais cadastradas no script da pasta `conf/`.
-   - **Operação**: Navegue entre `index.html`, `insert.jsp` (novo pedido) e `select.jsp` (listagem) para validar o fluxo completo.
+### Passo 1: Clonar o Repositório
+```bash
+git clone [https://github.com/Refboni/pharma-saas.git](https://github.com/Refboni/pharma-saas.git)
+cd pharma-saas
+```
+
+### Passo 2: Criar o Banco de Dados e Dados Iniciais (MySQL)
+Execute o script SQL para criar o banco `pharma_db`, as tabelas (`clientes`, `pedidos_formulas`, `login`) e os registros de teste:
+```bash
+sudo mysql -u root < conf/script.sql
+```
+
+### Passo 3: Publicar a Aplicação no Apache Tomcat 10
+Copie os arquivos da aplicação e a configuração do pool JDBC (`context.xml`) para o diretório do Tomcat 10:
+```bash
+sudo mkdir -p /var/lib/tomcat10/webapps/pharma-saas/META-INF
+sudo cp -r index.html login.jsp insert.jsp select.jsp WEB-INF /var/lib/tomcat10/webapps/pharma-saas/
+sudo cp conf/context.xml /var/lib/tomcat10/webapps/pharma-saas/META-INF/context.xml
+sudo chown -R tomcat:tomcat /var/lib/tomcat10/webapps/pharma-saas
+sudo systemctl restart tomcat10
+```
+
+### Passo 4: Roteiro de Validação no Navegador
+
+* **Credenciais de Teste:**
+  * **Usuário:** `admin@pharma.com`
+  * **Senha:** `123456`
+
+1. **Teste de Bloqueio de Rota (Sem Sessão):**
+   * Acesse `http://<IP_DA_VM>:8080/pharma-saas/select.jsp` sem estar logado.
+   * **Resultado esperado:** O `AuthFilter` intercepta a requisição e redireciona automaticamente para `login.jsp`.
+2. **Teste de Autenticação:**
+   * Na tela `login.jsp`, informe `admin@pharma.com` e `123456`.
+   * **Resultado esperado:** O sistema cria a sessão e libera o acesso à aplicação.
+3. **Teste das Funcionalidades (CRUD):**
+   * Acesse `http://<IP_DA_VM>:8080/pharma-saas/index.html` para navegar entre as telas.
+   * Em `insert.jsp`, cadastre uma nova solicitação de fórmula.
+   * Em `select.jsp`, confira os pedidos pré-cadastrados e o novo registro inserido.
