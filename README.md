@@ -123,6 +123,7 @@ Copie os arquivos da aplicação (incluindo o driver JDBC em `WEB-INF/lib/`) par
 sudo mkdir -p /var/lib/tomcat10/webapps/pharma-saas/META-INF
 sudo cp -r index.html login.jsp insert.jsp select.jsp WEB-INF /var/lib/tomcat10/webapps/pharma-saas/
 sudo cp conf/context.xml /var/lib/tomcat10/webapps/pharma-saas/META-INF/context.xml
+sudo cp WEB-INF/lib/mysql-connector-j-26.7.0.jar /usr/share/tomcat10/lib/
 sudo chown -R tomcat:tomcat /var/lib/tomcat10/webapps/pharma-saas
 sudo systemctl restart tomcat10
 ```
