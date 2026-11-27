@@ -57,14 +57,14 @@ Para atender aos requisitos da disciplina de SaaS Infrastructure e garantir um p
 
 #### Decisões
 1. **Arquitetura 3 Camadas**:
-   - **Camada 1 (Banco de Dados)**: MySQL rodando em servidor dedicado ou VM.
-   - **Camada 2 (Aplicação / Servidor Web)**: Java (JSP/Servlets) no Apache Tomcat 10.
-   - **Camada 3 (Apresentação)**: Interface Web responsiva (HTML5/CSS3/JavaScript).
+  - **Camada 1 (Banco de Dados)**: MySQL rodando em servidor dedicado ou VM.
+  - **Camada 2 (Aplicação / Servidor Web)**: Java (JSP/Servlets) no Apache Tomcat 10.
+  - **Camada 3 (Apresentação)**: Interface Web responsiva (HTML5/CSS3/JavaScript).
 2. **Modelagem de Dados**:
-   - Criação de tabela de clientes (`clientes`) e tabela de pedidos de fórmulas (`pedidos_formulas`).
-   - Aplicação de restrições de integridade referencial com `FOREIGN KEY` e ação em cascata (`ON DELETE CASCADE ON UPDATE CASCADE`).
+  - Criação de tabela de clientes (`clientes`) e tabela de pedidos de fórmulas (`pedidos_formulas`).
+  - Aplicação de restrições de integridade referencial com `FOREIGN KEY` e ação em cascata (`ON DELETE CASCADE ON UPDATE CASCADE`).
 3. **Controle de Versão e Deploy**:
-   - O código da aplicação e as configurações de banco de dados (`conf/`) são mantidos em repositório GitHub e sincronizados com o ambiente de aplicação.
+  - O código da aplicação e as configurações de banco de dados (`conf/`) são mantidos em repositório GitHub e sincronizados com o ambiente de aplicação.
 
 #### Consequências
 - **Positivas**: Estrutura simples, de fácil manutenção, alinhada com os padrões de SaaS em 3 camadas e preparada para futura migração para microsserviços.
@@ -82,12 +82,12 @@ Com as telas de cadastro (`insert.jsp`) e consulta (`select.jsp`) operacionais, 
 
 #### Decisões
 1. **Controle de Sessão via JSP (`login.jsp`)**:
-   - Validação das credenciais na tabela `login` do MySQL (`MD5`) e armazenamento do atributo de identificação do usuário na `HttpSession`.
+  - Validação das credenciais na tabela `login` do MySQL (`MD5`) e armazenamento do atributo de identificação do usuário na `HttpSession`.
 2. **Interceptação Centralizada com Servlet Filter (`AuthFilter`)**:
-   - Implementação da classe `com.pharma.security.AuthFilter` (utilizando a API `jakarta.servlet.Filter` compatível com Apache Tomcat 10 e compilada com `--release 21`).
-   - Mapeamento no `WEB-INF/web.xml` para interceptar as requisições da aplicação (`/*`), liberando apenas a rota de autenticação (`login.jsp`) e redirecionando automaticamente qualquer acesso sem sessão válida para a tela de login.
+  - Implementação da classe `com.pharma.security.AuthFilter` (utilizando a API `jakarta.servlet.Filter` compatível com Apache Tomcat 10 e compilada com `--release 21`).
+  - Mapeamento no `WEB-INF/web.xml` para interceptar as requisições da aplicação (`/*`), liberando apenas a rota de autenticação (`login.jsp`) e redirecionando automaticamente qualquer acesso sem sessão válida para a tela de login.
 3. **Prevenção de Cache no Navegador**:
-   - Injeção de cabeçalhos HTTP (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache` e `Expires: 0`) nas respostas filtradas para evitar que o botão "Voltar" do navegador exiba dados sensíveis após a expiração da sessão.
+  - Injeção de cabeçalhos HTTP (`Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache` e `Expires: 0`) nas respostas filtradas para evitar que o botão "Voltar" do navegador exiba dados sensíveis após a expiração da sessão.
 
 #### Consequências
 - **Positivas**: Segurança centralizada em um único ponto sem necessidade de duplicar verificações de sessão em cada arquivo JSP; total compatibilidade com o Tomcat 10.
@@ -98,9 +98,9 @@ Com as telas de cadastro (`insert.jsp`) e consulta (`select.jsp`) operacionais, 
 ## 5. Guia de Implantação e Testes (Passo a Passo)
 
 ### Pré-requisitos do Ambiente
-* **Java 21+** e **Apache Tomcat 10**
-* **MySQL Server** configurado com o usuário `root` aceitando conexões locais sem senha (ou ajuste a senha nos arquivos `.jsp`).
-  * *Caso seu MySQL no Ubuntu use `auth_socket` por padrão para o `root`, habilite o acesso local sem senha para testes:*
+- **Java 21+** e **Apache Tomcat 10**
+- **MySQL Server** configurado com o usuário `root` aceitando conexões locais sem senha (ou ajuste a senha nos arquivos `.jsp`).
+  - *Caso seu MySQL no Ubuntu use `auth_socket` por padrão para o `root`, habilite o acesso local sem senha para testes:*
     ```bash
     sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY ''; FLUSH PRIVILEGES;"
     ```
@@ -130,17 +130,27 @@ sudo systemctl restart tomcat10
 
 ### Passo 4: Roteiro de Validação no Navegador
 
-* **Credenciais de Teste:**
-  * **Usuário:** `admin@pharma.com`
-  * **Senha:** `123456`
+- **Credenciais de Teste:**
+  - **Usuário:** `admin@pharma.com`
+  - **Senha:** `123456`
 
 1. **Teste de Bloqueio de Rota (Sem Sessão):**
-   * Acesse `http://<IP_DA_VM>:8080/pharma-saas/select.jsp` sem estar logado.
-   * **Resultado esperado:** O `AuthFilter` intercepta a requisição e redireciona automaticamente para `login.jsp`.
+  - Acesse `http://<IP_DA_VM>:8080/pharma-saas/select.jsp` sem estar logado.
+  - **Resultado esperado:** O `AuthFilter` intercepta a requisição e redireciona automaticamente para `login.jsp`.
 2. **Teste de Autenticação:**
-   * Na tela `login.jsp`, informe `admin@pharma.com` e `123456`.
-   * **Resultado esperado:** Exibe `"Conectado"` e o link `"Ir para o Início"`.
+  - Na tela `login.jsp`, informe `admin@pharma.com` e `123456`.
+  - **Resultado esperado:** Exibe `"Conectado"` e o link `"Ir para o Início"`.
 3. **Teste das Funcionalidades (CRUD):**
-   * Acesse `http://<IP_DA_VM>:8080/pharma-saas/index.html` para navegar entre as telas.
-   * Em `insert.jsp`, cadastre uma nova solicitação de fórmula.
-   * Em `select.jsp`, confira os pedidos pré-cadastrados e o novo registro inserido.
+  - Acesse `http://<IP_DA_VM>:8080/pharma-saas/index.html` para navegar entre as telas.
+  - Em `insert.jsp`, cadastre uma nova solicitação de fórmula.
+  - Em `select.jsp`, confira os pedidos pré-cadastrados e o novo registro inserido.
+
+---
+
+## 6. Integrantes do Grupo
+
+- **Kauan Rodrigues Lourenço** — RA: 2601522
+- **Cauê Ogasawara Nascimento** — RA: 2404463
+- **Gabriella Corrêa Lemes** — RA: 2501390
+- **Lucas Rodrigues** — RA: 2501346
+- **Gabriel Oliveira da Silva** — RA: 2501236
